@@ -1,12 +1,12 @@
+import { db } from '../db';
+import { itemsTable } from '../db/schema';
 import { type CreateItemInput, type Item } from '../schema';
 
-export async function createItem(input: CreateItemInput): Promise<Item> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is creating a new item in the inventory system.
-    // It should validate the item data, ensure unique serial numbers,
-    // and persist the item in the database for future scanning.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
+export const createItem = async (input: CreateItemInput): Promise<Item> => {
+  try {
+    // Insert item record
+    const result = await db.insert(itemsTable)
+      .values({
         part_number: input.part_number,
         supplier: input.supplier,
         serial_number: input.serial_number,
@@ -14,8 +14,14 @@ export async function createItem(input: CreateItemInput): Promise<Item> {
         is_scanned_by_requester: false,
         mof_id: null,
         picked_at: null,
-        verified_at: null,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as Item);
-}
+        verified_at: null
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Item creation failed:', error);
+    throw error;
+  }
+};

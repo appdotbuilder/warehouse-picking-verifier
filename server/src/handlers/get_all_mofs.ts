@@ -1,9 +1,19 @@
+import { db } from '../db';
+import { mofsTable } from '../db/schema';
 import { type Mof } from '../schema';
+import { desc } from 'drizzle-orm';
 
-export async function getAllMofs(): Promise<Mof[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all MOFs from the database.
-    // This is primarily used by Admin users to view all MOFs in the system
-    // and monitor the overall picking and verification progress.
-    return Promise.resolve([]); // Placeholder - should return actual MOFs
-}
+export const getAllMofs = async (): Promise<Mof[]> => {
+  try {
+    // Query all MOFs ordered by creation date (newest first)
+    const results = await db.select()
+      .from(mofsTable)
+      .orderBy(desc(mofsTable.created_at))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch all MOFs:', error);
+    throw error;
+  }
+};

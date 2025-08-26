@@ -1,8 +1,24 @@
+import { db } from '../db';
+import { mofsTable } from '../db/schema';
 import { type GetMofBySerialInput, type Mof } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export async function getMofBySerial(input: GetMofBySerialInput): Promise<Mof | null> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is retrieving a MOF by its serial number.
-    // This is used when scanning QR codes to get MOF details for picking or verification.
-    return Promise.resolve(null); // Placeholder - should return actual MOF or null if not found
+  try {
+    // Query the MOF by serial number
+    const results = await db.select()
+      .from(mofsTable)
+      .where(eq(mofsTable.serial_number, input.serial_number))
+      .execute();
+
+    // Return the first result or null if not found
+    if (results.length === 0) {
+      return null;
+    }
+
+    return results[0];
+  } catch (error) {
+    console.error('Failed to get MOF by serial:', error);
+    throw error;
+  }
 }
